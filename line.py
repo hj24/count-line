@@ -3,6 +3,7 @@ import os
 import glob
 import argparse
 import fnmatch
+from collections import defaultdict
 
 class LineCounter(object):
 
@@ -13,6 +14,13 @@ class LineCounter(object):
 		# Core counters for the number of lines and files 
 		self.line_count = 0
 		self.file_count = 0
+
+		# sets to record the filter files suffix or specific files suffix
+		self.select_suffix = set()
+		self.filter_suffix = set()
+
+		# dict for detail results, default count = 0
+		self.final_files = defaultdict(int)
 
 	def filter_mod(self, filter_list):
 		print(filter_list)
@@ -27,6 +35,9 @@ class LineCounter(object):
 		print(f'file count: {self.file_count}')
 		print(f'line count: {self.line_count}')
 
+	def show_detail_results(self):
+		pass
+
 def main():
 	__usage__ = "count the amount of lines and files under the current directory"
 	parser = argparse.ArgumentParser(description=__usage__)
@@ -36,17 +47,19 @@ def main():
 						help="count by suffix file name, format: .suffix1.suffix2... e.g: .cpp.py (without space)")
 	group.add_argument("-f", "--filter", type=str, 
 						help="count without filter name, format: .suffix1.suffix2... e.g: .cpp.py (without space)")
+	parser.add_argument("-d", "--detail", action="store_true",
+						help="show detail results")
 	
 	args = parser.parse_args()
 
 	current_dir = os.getcwd()
 	counter = LineCounter(current_dir)
 
-	if args.suffix == None:
+	if args.filter:
 		args_list = args.filter.split('.')
 		args_list.remove('')
 		counter.filter_mod(args_list)
-	elif args.filter == None:
+	elif args.suffix:
 		args_list = args.suffix.split('.')
 		args_list.remove('')
 		counter.specific_mod(args_list)
@@ -54,7 +67,10 @@ def main():
 		print(f'Search in {current_dir}' + f'{os.sep}')
 		counter.normal_mod()
 
-	counter.show_results()
+	if args.detail:
+		counter.show_detail_results()
+	else:
+		counter.show_results()
 		
 if __name__ == '__main__':
 	main()
