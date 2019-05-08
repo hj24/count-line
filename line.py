@@ -20,7 +20,10 @@ class LineCounter(object):
 		self.filter_suffix = set()
 
 		# dict for detail results, default count = 0
-		self.final_files = defaultdict(int)
+		self.final_files_dict = defaultdict(int)
+
+		# set for files' name
+		self.final_files = set()
 
 	def filter_mod(self, filter_list):
 		print(filter_list)
@@ -30,6 +33,24 @@ class LineCounter(object):
 
 	def normal_mod(self):
 		pass
+
+	def find_files(self, path):
+		pass
+
+	# analyze single file: update self.line_count, self.file_count
+	def analyze_files(self, file):
+		if file not in self.filter_suffix:
+			file_line = self.count_lines(file)
+			self.line_count += file_line
+			self.file_count += 1
+
+	# count lines of single file
+	def count_lines(self, file):
+		cnt = 0
+		for file_line in open(file):
+			cnt += 1
+		return cnt
+			
 
 	def show_results(self):
 		print(f'file count: {self.file_count}')
@@ -73,7 +94,13 @@ def main():
 		counter.show_results()
 		
 if __name__ == '__main__':
-	main()
+	# main()
+	
+	current_dir = os.getcwd()
+	s = LineCounter(current_dir)
+	
 
+	f = glob.glob(current_dir + os.sep + '*')
+	print(f)
 
-
+	
