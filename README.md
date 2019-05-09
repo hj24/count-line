@@ -1,7 +1,7 @@
 # count-line
 
 ## Usage
-A command line tool to count the amount of lines and files under current directory.
+A cross-platform command line tool to count the amount of lines and files under current directory.
 
 ## Installation
 You can install, upgrade, uninstall count-line with these commands(without $):

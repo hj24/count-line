@@ -130,7 +130,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'line=line:_main',
+            'line=line:main',
         ],
     },
 )
