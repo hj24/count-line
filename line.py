@@ -1,9 +1,12 @@
 #!/usr/bin/env python
-import os
+import os, re
 import glob
 import argparse
 import fnmatch
 from collections import defaultdict
+
+__version__ = '0.1'
+__author__ = 'hj24'
 
 class LineCounter(object):
 
@@ -21,43 +24,120 @@ class LineCounter(object):
 
 		# dict for detail results, default count = 0
 		self.final_files_dict = defaultdict(int)
+		self.files_lines_dict = defaultdict(int)
 
 		# set for files' name
 		self.final_files = set()
 
 	def filter_mod(self, filter_list):
-		print(filter_list)
+		self.filter_suffix = {f for f in filter_list}
+
+		self.find_files(self.current_dir, mod='filter')
+
+		for file in self.final_files:
+			self.analyze_files(file)
 
 	def specific_mod(self, suffix_list):
-		print(suffix_list)
+
+		self.select_suffix = {s for s in suffix_list}
+		
+		self.find_files(self.current_dir, mod='specific')
+		
+		for file in self.final_files:
+			self.analyze_files(file)
 
 	def normal_mod(self):
-		pass
 
-	def find_files(self, path):
-		pass
+		self.find_files(self.current_dir, mod='normal')
+
+		for file in self.final_files:
+			self.analyze_files(file)
+
+	def find_files(self, path, mod):
+		root = path
+		#print(path)
+		files_or_folders = os.listdir(path)
+
+		for item in files_or_folders:
+			# ignore hidden files
+			if item[0] != '.':		
+				if os.path.isdir(root + os.sep + item):
+					sub_path = root + os.sep + item
+					self.find_files(sub_path, mod=mod)
+
+				elif os.path.isfile(root + os.sep + item):
+					if mod == 'normal':
+						self.add_file(root + os.sep, item)
+
+					elif mod == 'filter':
+						if self.filter_conditions(root + os.sep + item):
+							self.add_file(root + os.sep, item)
+
+					elif mod == 'specific':
+						if self.specific_conditions(root + os.sep + item):
+							self.add_file(root + os.sep, item)
+
+	def filter_conditions(self, path):
+		for f in self.filter_suffix:
+			if path.endswith(f):
+				return False
+		return True
+
+	def specific_conditions(self, path):
+		for s in self.select_suffix:
+			if not path.endswith(s):
+				#print(path)
+				return False
+		return True
+
+	def add_file(self, path, name):
+		self.final_files.add(path + name)
+		file_name = name.split('.')[-1]
+		self.final_files_dict[file_name] += 1
 
 	# analyze single file: update self.line_count, self.file_count
 	def analyze_files(self, file):
-		if file not in self.filter_suffix:
-			file_line = self.count_lines(file)
-			self.line_count += file_line
-			self.file_count += 1
+		#if file not in self.filter_suffix:
+		file_line = self.count_lines(file)
+
+		file_name = file.split('.')[-1]
+		self.files_lines_dict[file_name] += file_line
+
+		self.line_count += file_line
+		self.file_count += 1
 
 	# count lines of single file
 	def count_lines(self, file):
 		cnt = 0
-		for file_line in open(file):
+		for file_line in open(file, 'rb'):
 			cnt += 1
 		return cnt
 			
-
 	def show_results(self):
 		print(f'file count: {self.file_count}')
 		print(f'line count: {self.line_count}')
 
 	def show_detail_results(self):
-		pass
+		info = '''
+		========================================
+		文件后缀名\t文件数\t\t总行数
+		'''
+
+		data = '''
+		   .{}\t\t{}\t\t{}
+		'''
+
+		end = '''
+		总文件数: {}\t总行数: {}
+		========================================
+		'''
+
+		print(info)
+
+		for (k, v) in self.final_files_dict.items():
+			print(data.format(k, v, self.files_lines_dict[k]))
+
+		print(end.format(self.file_count, self.line_count))
 
 def main():
 	__usage__ = "count the amount of lines and files under the current directory"
@@ -76,6 +156,8 @@ def main():
 	current_dir = os.getcwd()
 	counter = LineCounter(current_dir)
 
+	print(f'Search in {current_dir}' + f'{os.sep}')
+
 	if args.filter:
 		args_list = args.filter.split('.')
 		args_list.remove('')
@@ -85,7 +167,6 @@ def main():
 		args_list.remove('')
 		counter.specific_mod(args_list)
 	else:
-		print(f'Search in {current_dir}' + f'{os.sep}')
 		counter.normal_mod()
 
 	if args.detail:
@@ -94,13 +175,25 @@ def main():
 		counter.show_results()
 		
 if __name__ == '__main__':
-	# main()
+	main()
+	# rs = re.match(r'(.+)\.[a-z, A-Z]+', f)
+	# if rs:
+	# 	print(rs.group())
+	# print(os.path.isfile('test.py'))
+	# current_dir = os.getcwd()
+	# s = LineCounter(current_dir)
+	# s.specific_mod(['md'])
+	# s.show_results()
 	
-	current_dir = os.getcwd()
-	s = LineCounter(current_dir)
-	
+	# f = {i for i in s.final_files if not i.endswith('md')}
+	# print(f)
+	# pattern = r'(.+)\.(.+)'
+	# s = 'test.py'
+	# sa = s.split('.')
+	# print(type(sa[-1]))
 
-	f = glob.glob(current_dir + os.sep + '*')
-	print(f)
+	# file = re.findall(pattern, 'test.py')
+	# print(file)
 
-	
+
+
