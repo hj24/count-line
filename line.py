@@ -5,7 +5,7 @@ import argparse
 import fnmatch
 from collections import defaultdict
 
-__version__ = '0.1.0'
+__version__ = '0.1.2'
 __author__ = 'hj24'
 
 class LineCounter(object):

@@ -18,7 +18,7 @@ URL = 'https://github.com/hj24/count-line'
 EMAIL = 'mambahj24@gmail.com'
 AUTHOR = 'hj24'
 REQUIRES_PYTHON = '>=3'
-VERSION = '0.1.0'
+VERSION = '0.1.2'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
@@ -105,7 +105,7 @@ setup(
     url=URL,
     # packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     # If your package is a single module, use this instead of 'packages':
-    py_modules=['count-line'],
+    py_modules=['line'],
 
     # entry_points={
     #     'console_scripts': ['mycli=mymodule:cli'],
