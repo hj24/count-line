@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-import os, re
+import os
 import glob
 import argparse
 import fnmatch
 from collections import defaultdict
 
-__version__ = '0.1'
+__version__ = '0.1.0'
 __author__ = 'hj24'
 
 class LineCounter(object):
@@ -28,6 +28,14 @@ class LineCounter(object):
 
 		# set for files' name
 		self.final_files = set()
+
+	def __repr__(self):
+
+		info = '''
+		author: \t{}
+		count-line version: \t{}
+		'''
+		return info.format(__version__, __author__)
 
 	def filter_mod(self, filter_list):
 		self.filter_suffix = {f for f in filter_list}
@@ -55,7 +63,7 @@ class LineCounter(object):
 
 	def find_files(self, path, mod):
 		root = path
-		#print(path)
+		
 		files_or_folders = os.listdir(path)
 
 		for item in files_or_folders:
@@ -85,10 +93,9 @@ class LineCounter(object):
 
 	def specific_conditions(self, path):
 		for s in self.select_suffix:
-			if not path.endswith(s):
-				#print(path)
-				return False
-		return True
+			if path.endswith(s):
+				return True
+		return False
 
 	def add_file(self, path, name):
 		self.final_files.add(path + name)
@@ -119,17 +126,17 @@ class LineCounter(object):
 
 	def show_detail_results(self):
 		info = '''
-		========================================
-		文件后缀名\t文件数\t\t总行数
+		=====================================================
+		\t文件后缀名\t文件数\t\t总行数
 		'''
 
 		data = '''
-		   .{}\t\t{}\t\t{}
+		   \t.{}\t\t{}\t\t{}
 		'''
 
 		end = '''
-		总文件数: {}\t总行数: {}
-		========================================
+		\t总文件数: {}\t总行数: {}
+		=====================================================
 		'''
 
 		print(info)
@@ -156,7 +163,7 @@ def main():
 	current_dir = os.getcwd()
 	counter = LineCounter(current_dir)
 
-	print(f'Search in {current_dir}' + f'{os.sep}')
+	print('Search in {}'.format(current_dir + os.sep))
 
 	if args.filter:
 		args_list = args.filter.split('.')
@@ -176,24 +183,3 @@ def main():
 		
 if __name__ == '__main__':
 	main()
-	# rs = re.match(r'(.+)\.[a-z, A-Z]+', f)
-	# if rs:
-	# 	print(rs.group())
-	# print(os.path.isfile('test.py'))
-	# current_dir = os.getcwd()
-	# s = LineCounter(current_dir)
-	# s.specific_mod(['md'])
-	# s.show_results()
-	
-	# f = {i for i in s.final_files if not i.endswith('md')}
-	# print(f)
-	# pattern = r'(.+)\.(.+)'
-	# s = 'test.py'
-	# sa = s.split('.')
-	# print(type(sa[-1]))
-
-	# file = re.findall(pattern, 'test.py')
-	# print(file)
-
-
-
